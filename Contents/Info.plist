@@ -17,13 +17,17 @@
 	<key>CFBundleVersion</key>
 	<string>1.0</string>
 	<key>PlexAudioCodec</key>
-	<string>libfaad</string>
+	<array>
+		<string>libfaad</string>
+	</array>
 	<key>PlexClientPlatforms</key>
 	<string>MacOSX</string>
 	<key>PlexFrameworkVersion</key>
 	<string>1</string>
 	<key>PlexMediaContainer</key>
-	<string>MP4</string>
+	<array>
+		<string>MP4</string>
+	</array>
 	<key>PlexPluginDebug</key>
 	<string>1</string>
 	<key>PlexPluginMode</key>
@@ -33,6 +37,8 @@
 		<string>/video/gametrailers</string>
 	</array>
 	<key>PlexVideoCodec</key>
-	<string>H.264</string>
+	<array>
+		<string>H.264</string>
+	</array>
 </dict>
 </plist>
