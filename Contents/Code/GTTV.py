@@ -1,9 +1,4 @@
 import re
-import urllib
-from PMS import *
-from PMS.Objects import *
-from PMS.Shortcuts import *
-
 from Support import *
 
 GT_URL                               = 'http://www.gametrailers.com'
@@ -18,8 +13,7 @@ def GTTV(sender, pageNumber=1):
   # Display top menu for GTTV
 
   cookies = HTTP.GetCookiesForURL(GT_URL)
-  dir = MediaContainer(httpCookies=cookies)
-  dir.viewGroup = 'Details'
+  dir = MediaContainer(httpCookies=cookies, viewGroup = 'Details')
   if pageNumber==1:
     dir.title1 = L('channels')
     dir.title2 = L('gttv')
@@ -32,7 +26,7 @@ def GTTV(sender, pageNumber=1):
     'page' : pageNumber
   }
 
-  episodesPage = XML.ElementFromURL(GTTV_EPISODES_URL, isHTML=True, values=values, cacheTime=CACHE_GTTV_INTERVAL, errors='ignore')
+  episodesPage = HTML.ElementFromURL(GTTV_EPISODES_URL, values=values, cacheTime=CACHE_GTTV_INTERVAL, errors='ignore')
 
   episodes = episodesPage.xpath("//div[@class='gttv_episode']")
 
@@ -47,7 +41,7 @@ def GTTV(sender, pageNumber=1):
 
     # Get more metadata for each chapter
 
-    episodePage = XML.ElementFromURL(url, isHTML=True, cacheTime=CACHE_GTTV_INTERVAL, errors='ignore')
+    episodePage = HTML.ElementFromURL(url, cacheTime=CACHE_GTTV_INTERVAL, errors='ignore')
     chapters = episodePage.xpath("//div[@id='gttv_chapters']/div[@class='gttv_chapter']")
 
     for chapter in chapters:
@@ -68,14 +62,14 @@ def GTTV(sender, pageNumber=1):
     dir.Append(Function(DirectoryItem(GTTV, title=L('nextpage'), thumb=R('icon-default.png')), pageNumber=nextPageNumber))
 
   if DEBUG_XML_RESPONSE:
-    PMS.Log(dir.Content())
+    Log(dir.Content())
   return dir
 
 def PlayGTTV(sender, url):
 
   # Pull the requested url and find the flv
 
-  episodePage = XML.ElementFromURL(url, isHTML=True, cacheTime=CACHE_GTTV_INTERVAL, errors='ignore')
+  episodePage = HTML.ElementFromURL(url, cacheTime=CACHE_GTTV_INTERVAL, errors='ignore')
 
   playerCode = episodePage.xpath("//div[@id='gttv_player']/script/text()")[0]
 
@@ -83,9 +77,9 @@ def PlayGTTV(sender, url):
   # TODO Replace with String.URLEncode when new framework is released
   metadataUrl = re.sub(r' ', r'%20', metadataUrl)
 
-  metadataPage = XML.ElementFromURL(metadataUrl, isHTML=False, cacheTime=CACHE_GTTV_INTERVAL)
+  metadataPage = XML.ElementFromURL(metadataUrl, cacheTime=CACHE_GTTV_INTERVAL)
   
-  if Prefs.Get('quality-key') == 'SD Only':
+  if Prefs['quality-key'] == 'SD Only':
     flvUrl = metadataPage.xpath("//sd/flv/text()")[0]
   else:
     flvUrl = metadataPage.xpath("//hd/flv/text()")[0]

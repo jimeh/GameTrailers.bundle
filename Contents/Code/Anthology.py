@@ -1,7 +1,4 @@
 import re
-from PMS import *
-from PMS.Objects import *
-from PMS.Shortcuts import *
 
 from Support import *
 
@@ -16,12 +13,9 @@ def Anthology(sender, offset=1):
   # Display top menu for Anthology
 
   cookies = HTTP.GetCookiesForURL(GT_URL)
-  dir = MediaContainer(httpCookies=cookies)
-  dir.viewGroup = 'Details'
-  dir.title1 = L('channels')
-  dir.title2 = L('anthology')
+  dir = MediaContainer(httpCookies=cookies, viewGroup = 'Details', title1 = L('channels'), title2 = L('anthology'))
 
-  anthologyPage = XML.ElementFromURL(ANTHOLOGY_URL, isHTML=True, cacheTime=CACHE_ANTHOLOGY_INTERVAL, errors='ignore')
+  anthologyPage = HTML.ElementFromURL(ANTHOLOGY_URL, cacheTime=CACHE_ANTHOLOGY_INTERVAL, errors='ignore')
 
   videos = anthologyPage.xpath("//div[@id='Features']/div[@style='margin:2px;']")
 
@@ -44,7 +38,7 @@ def Anthology(sender, offset=1):
     dir.Append(Function(VideoItem(PlayVideo, title=title, subtitle=date, summary=description, duration='', thumb=thumb), url=url))
 
   if DEBUG_XML_RESPONSE:
-    PMS.Log(dir.Content())
+    Log(dir.Content())
   return dir
 
 

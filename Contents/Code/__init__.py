@@ -1,7 +1,4 @@
 import re
-from PMS import *
-from PMS.Objects import *
-from PMS.Shortcuts import *
 
 from ScrewAttack import *
 from InvisibleWalls import *
@@ -37,7 +34,7 @@ MAX_ITEM_COUNT          = 20 # Maximum number of items to display per page
 DEBUG_XML_RESPONSE		     = True
 CACHE_INTERVAL                       = 1800 # Since we are not pre-fetching content this cache time seems reasonable 
 CACHE_RSS_INTERVAL                   = 1800
-CACHE_HIGHLIGHTS_INTERVAL              = 1800
+CACHE_HIGHLIGHTS_INTERVAL            = 1800
 CACHE_SEARCH_INTERVAL		     = 600
 
 RSS_NAMESPACE                      = {'exInfo':'http://www.gametrailers.com/rssexplained.php'}
@@ -46,113 +43,93 @@ LOGIN_PREF_KEY = "login"
 PASSWD_PREF_KEY = "passwd"
 LOGGED_IN = "loggedIn"
 
+ART = 'art-default.png'
+ICON = 'icon-default.png'
+
 ####################################################################################################
 
 def Start():
-  Plugin.AddPrefixHandler(GT_PREFIX, MainMenu, L('gt'), 'icon-default.png', 'art-default.png')
+  Plugin.AddPrefixHandler(GT_PREFIX, MainMenu, L('gt'), ICON, ART)
   Plugin.AddViewGroup('List', viewMode='List', mediaType='items')
   Plugin.AddViewGroup('Details', viewMode='InfoList', mediaType='items')
   MediaContainer.content = 'Items'
-  MediaContainer.art = R('art-default.png')
+  MediaContainer.art = R(ART)
   MediaContainer.viewGroup = 'List'
-  HTTP.SetCacheTime(CACHE_INTERVAL)
+  MediaContainer.title1 = L('gt')
+  HTTP.CacheTime = CACHE_INTERVAL
 
 def ValidatePrefs():
-  userName = Prefs.Get(LOGIN_PREF_KEY)
-  password = Prefs.Get(PASSWD_PREF_KEY) 
-  Dict.Set(LOGGED_IN, False)
+  userName = Prefs['LOGIN_PREF_KEY']
+  password = Prefs['PASSWD_PREF_KEY']
+  Dict['LOGGED_IN'] = False
   if (userName != None) and (password != None):
-    values = dict() 
+    values = {} 
     values['action']='userLogin'
     values['username']=userName
     values['password']=password
     Log("Login")
-    response = HTTP.Request("http://www.gametrailers.com/quick_register_ajaxfuncs.php", values=values, cacheTime=0)
+    response = HTTP.Request("http://www.gametrailers.com/quick_register_ajaxfuncs.php", values=values, cacheTime=0).content
     if(response == None or len(response.strip()) == 0):
-        Log("Secondary login")
-    	HTTP.Request('http://www.gametrailers.com/includes/cookie_proc_ajax.php', values=values, cacheTime=0)
-    	Dict.Set(LOGGED_IN, True)
-
-def CreatePrefs():
-  Prefs.Add(id=LOGIN_PREF_KEY,    type='text', default=None, label='Login')
-  Prefs.Add(id=PASSWD_PREF_KEY, type='text', default=None, label='Password', option='hidden')
-  Prefs.Add(id='quality-key', type='enum', default='HD Preferred', label='Video Quality', values='HD Preferred|HD Only|SD Only')
-
-  platforms = [ 'noselection' ]
-  for platform in GT_PLATFORMS:
-    platforms.append(platform)
-  platforms.reverse
-  platformValues = "|".join(platforms)
-  Prefs.Add(id='platform-key', type='enum', default='noselection', label='autoselect', values=platformValues)
-
-  mediaTypes = []
-  for mediaType in GT_MEDIATYPES:
-    mediaTypes.append(mediaType)
-  mediaTypeValues = "|".join(mediaTypes)
-
-  Prefs.Add(id='mediatype-key', type='enum', default='mov', label='mediatypes', values=mediaTypeValues)
+      Log("Secondary login")
+      response = HTTP.Request('http://www.gametrailers.com/includes/cookie_proc_ajax.php', values=values, cacheTime=0).content
+      Dict['LOGGED_IN'] = True
 
 def MainMenu():
 
   dir = MediaContainer(noCache=True)
-  dir.title1 = L('gt')
   
-  if (Dict.Get(LOGGED_IN)):
+  if (Dict['LOGGED_IN']):
   
-      dir.Append(Function(DirectoryItem(HighlightsBrowser, title=L('highlights'), thumb=R('icon-default.png'))))
-      dir.Append(Function(DirectoryItem(CategoryBrowser, title=L('categories'), thumb=R('icon-default.png'))))
-      dir.Append(Function(DirectoryItem(ChannelBrowser, title=L('channels'), thumb=R('icon-default.png'))))
+      dir.Append(Function(DirectoryItem(HighlightsBrowser, title=L('highlights'), thumb=R(ICON))))
+      dir.Append(Function(DirectoryItem(CategoryBrowser, title=L('categories'), thumb=R(ICON))))
+      dir.Append(Function(DirectoryItem(ChannelBrowser, title=L('channels'), thumb=R(ICON))))
       dir.Append(Function(InputDirectoryItem(Search, title=L('search'), prompt=L('searchprompt'), thumb=R('search.png'))))
   dir.Append(PrefsItem(L('preferences'), thumb=R('icon-prefs.png')))
 
   if DEBUG_XML_RESPONSE:
-    PMS.Log(dir.Content())
+    Log(dir.Content())
   return dir
 
 def ChannelBrowser(sender):
 
-  dir = MediaContainer()
-  dir.title1 = L('gt')
-  dir.title2 = L('channels')
+  dir = MediaContainer(title2 = L('channels'))
 
   # Some channels are only availalbe in SD, if the user has requested HD only then warn them
   sdwarn = ''
-  if Prefs.Get('quality-key') == 'HD Only':
+  if Prefs['quality-key'] == 'HD Only':
     sdwarn = " (SD Only)"
 
   # Ordering matches that on the site
-  dir.Append(Function(DirectoryItem(GTTV, title=L('gttv'), thumb=R('icon-default.png'))))
-  dir.Append(Function(DirectoryItem(BonusRound, title=L('bonusround'), thumb=R('icon-default.png'))))
-  dir.Append(Function(DirectoryItem(InvisibleWalls, title=L('invisiblewalls') + sdwarn, thumb=R('icon-default.png'))))
-  dir.Append(Function(DirectoryItem(Retrospectives, title=L('retrospectives') + sdwarn, thumb=R('icon-default.png'))))
-  dir.Append(Function(DirectoryItem(Anthology, title=L('anthology'), thumb=R('icon-default.png'))))
-  dir.Append(Function(DirectoryItem(ScrewAttack, title=L('screwattack') + sdwarn, thumb=R('icon-default.png'))))
-  dir.Append(Function(DirectoryItem(Countdown, title=L('countdown'), thumb=R('icon-default.png'))))
+  dir.Append(Function(DirectoryItem(GTTV, title=L('gttv'), thumb=R(ICON))))
+  dir.Append(Function(DirectoryItem(BonusRound, title=L('bonusround'), thumb=R(ICON))))
+  dir.Append(Function(DirectoryItem(InvisibleWalls, title=L('invisiblewalls') + sdwarn, thumb=R(ICON))))
+  dir.Append(Function(DirectoryItem(Retrospectives, title=L('retrospectives') + sdwarn, thumb=R(ICON))))
+  dir.Append(Function(DirectoryItem(Anthology, title=L('anthology'), thumb=R(ICON))))
+  dir.Append(Function(DirectoryItem(ScrewAttack, title=L('screwattack') + sdwarn, thumb=R(ICON))))
+  dir.Append(Function(DirectoryItem(Countdown, title=L('countdown'), thumb=R(ICON))))
 
 
   if DEBUG_XML_RESPONSE:
-    PMS.Log(dir.Content())
+    Log(dir.Content())
   return dir
 
 
 
 def CategoryBrowser(sender):
 
-  dir = MediaContainer()
-  dir.title1 = L('gt')
-  dir.title2 = L('categories')
+  dir = MediaContainer(title2 = L('categories'))
 
   for category in GT_CATEGORIES:
-    dir.Append(Function(DirectoryItem(PlatformBrowser, title=L(category), thumb=R('icon-default.png')), category=category))
+    dir.Append(Function(DirectoryItem(PlatformBrowser, title=L(category), thumb=R(ICON)), category=category))
 
   if DEBUG_XML_RESPONSE:
-    PMS.Log(dir.Content())
+    Log(dir.Content())
   return dir
 
 def PlatformBrowser(sender, category):
 
   # First check to see if the user has selected a specific console as a preference
-  platformKey = Prefs.Get('platform-key')
+  platformKey = Prefs['platform-key']
 
   if platformKey != 'noselection':
 
@@ -162,15 +139,13 @@ def PlatformBrowser(sender, category):
 
   else:
 
-    dir = MediaContainer()
-    dir.title1 = L('categories')
-    dir.title2 = L(category)
+    dir = MediaContainer(title1 = L('categories'), title2 = L(category))
 
     for platform in GT_PLATFORMS:
-      dir.Append(Function(DirectoryItem(RSSBrowser, title=L(platform), thumb=R('icon-default.png')), category=category, platform=platform))
+      dir.Append(Function(DirectoryItem(RSSBrowser, title=L(platform), thumb=R(ICON)), category=category, platform=platform))
 
     if DEBUG_XML_RESPONSE:
-      PMS.Log(dir.Content())
+      Log(dir.Content())
     return dir
 
 def RSSBrowser(sender, category, platform, offset=0, page=1):
@@ -178,8 +153,7 @@ def RSSBrowser(sender, category, platform, offset=0, page=1):
   # Browse the 'customizable rss feeds'
 
   cookies = HTTP.GetCookiesForURL(GT_URL)
-  dir = MediaContainer(httpCookies=cookies)
-  dir.viewGroup = 'Details'
+  dir = MediaContainer(httpCookies=cookies, viewGroup='Details')
   if page > 1:
     dir.title1 = L(platform)
     dir.title2 = L('page') + ' ' + str(page)
@@ -196,16 +170,16 @@ def RSSBrowser(sender, category, platform, offset=0, page=1):
   if category != 'allcategories':
     rssUrl += '&type%5B' + category + '%5D=on'
 
-  if Prefs.Get('quality-key') == 'HD Only':
+  if Prefs['quality-key'] == 'HD Only':
     rssUrl += '&quality%5B%5D=on'
-  elif Prefs.Get('quality-key') == 'SD Only':
+  elif Prefs['quality-key'] == 'SD Only':
     rssUrl += '&quality%5Bsd%5D=on'
   else:
     rssUrl += '&quality%5Beither%5D=on'
 
   rssUrl += "orderby=newest&limit=100"
 
-  rssFeed = XML.ElementFromURL(rssUrl, isHTML=False, cacheTime=CACHE_RSS_INTERVAL, errors='ignore')
+  rssFeed = XML.ElementFromURL(rssUrl, cacheTime=CACHE_RSS_INTERVAL, errors='ignore')
 
   items = rssFeed.xpath('//channel/item')
 
@@ -238,7 +212,7 @@ def RSSBrowser(sender, category, platform, offset=0, page=1):
       pageUrl = str(item.xpath("./exInfo:fileType/link/text()", namespaces=RSS_NAMESPACE)[0])
       thumb = item.xpath("./exInfo:image/text()", namespaces=RSS_NAMESPACE)[0]
       try:
-	      description = item.xpath("./description/text()")[0]
+	description = item.xpath("./description/text()")[0]
       except:
       	Log('No description for ' + title)
       	description = ''
@@ -250,43 +224,37 @@ def RSSBrowser(sender, category, platform, offset=0, page=1):
 
   if count < itemTotalCount:
 
-    dir.Append(Function(DirectoryItem(RSSBrowser, title=L('nextpage'), summary='', subtitle='', thumb=R('icon-default.png')), category=category, platform=platform, offset=count+1, page=page+1))
+    dir.Append(Function(DirectoryItem(RSSBrowser, title=L('nextpage'), summary='', subtitle='', thumb=R(ICON)), category=category, platform=platform, offset=count+1, page=page+1))
 
 
   if DEBUG_XML_RESPONSE:
-    PMS.Log(dir.Content())
+    Log(dir.Content())
   return dir
 
 def HighlightsBrowser(sender):
 
   # List available 'highlights' sections
 
-  dir = MediaContainer()
-  dir.title1 = L('gt')
-  dir.title2 = L('highlights')
+  dir = MediaContainer(title2 = L('highlights'))
 
-  dir.Append(Function(DirectoryItem(HighlightsSectionBrowser, title=L('newest'), thumb=R('icon-default.png')), section='newest'))
-  dir.Append(Function(DirectoryItem(HighlightsSectionBrowser, title=L('featured'), thumb=R('icon-default.png')), section='featured'))
-  dir.Append(Function(DirectoryItem(HighlightsSectionBrowser, title=L('popular'), thumb=R('icon-default.png')), section='popular'))
-  dir.Append(Function(DirectoryItem(Top20Browser, title=L('yesterday'), thumb=R('icon-default.png')), section='yesterday'))
-  dir.Append(Function(DirectoryItem(Top20Browser, title=L('week'), thumb=R('icon-default.png')), section='week'))
-  dir.Append(Function(DirectoryItem(Top20Browser, title=L('month'), thumb=R('icon-default.png')), section='month'))
-  dir.Append(Function(DirectoryItem(Top20Browser, title=L('alltime'), thumb=R('icon-default.png')), section='alltime'))
+  dir.Append(Function(DirectoryItem(HighlightsSectionBrowser, title=L('newest'), thumb=R(ICON)), section='newest'))
+  dir.Append(Function(DirectoryItem(HighlightsSectionBrowser, title=L('featured'), thumb=R(ICON)), section='featured'))
+  dir.Append(Function(DirectoryItem(HighlightsSectionBrowser, title=L('popular'), thumb=R(ICON)), section='popular'))
+  dir.Append(Function(DirectoryItem(Top20Browser, title=L('yesterday'), thumb=R(ICON)), section='yesterday'))
+  dir.Append(Function(DirectoryItem(Top20Browser, title=L('week'), thumb=R(ICON)), section='week'))
+  dir.Append(Function(DirectoryItem(Top20Browser, title=L('month'), thumb=R(ICON)), section='month'))
+  dir.Append(Function(DirectoryItem(Top20Browser, title=L('alltime'), thumb=R(ICON)), section='alltime'))
 
 
   if DEBUG_XML_RESPONSE:
-    PMS.Log(dir.Content())
+    Log(dir.Content())
   return dir
 
 def HighlightsSectionBrowser(sender, section, page=0):
   cookies = HTTP.GetCookiesForURL(GT_URL)
-  dir = MediaContainer(httpCookies=cookies)
-  dir.viewGroup = 'Details'
-  dir.title1 = L('highlights')
-  dir.title2 = L(section)
+  dir = MediaContainer(viewGroup = 'Details', title1 = L('highlights'), title2 = L(section), httpCookies=cookies)
 
-
-  highlightsPage = XML.ElementFromURL(GT_HIGHLIGHTS_URL % (section,page), isHTML=True, cacheTime=CACHE_HIGHLIGHTS_INTERVAL, errors='ignore')
+  highlightsPage = HTML.ElementFromURL(GT_HIGHLIGHTS_URL % (section,page), cacheTime=CACHE_HIGHLIGHTS_INTERVAL, errors='ignore')
 
   videos = highlightsPage.xpath("//div[@class='newestlist_content']/table")
 
@@ -316,23 +284,20 @@ def HighlightsSectionBrowser(sender, section, page=0):
 
 
   if DEBUG_XML_RESPONSE:
-    PMS.Log(dir.Content())
+    Log(dir.Content())
   return dir
 
 def Top20Browser(sender, section, page=0):
 
   cookies = HTTP.GetCookiesForURL(GT_URL)
-  dir = MediaContainer(httpCookies=cookies)
-  dir.viewGroup = 'Details'
-  dir.title1 = L('highlights')
-  dir.title2 = L(section)
+  dir = MediaContainer(httpCookies=cookies, viewGroup = 'Details', title1 = L('highlights'), title2 = L(section))
 
-  top20Page = XML.ElementFromURL(GT_TOP20_URL % (section,page), isHTML=True, cacheTime=CACHE_HIGHLIGHTS_INTERVAL, errors='ignore')
+  top20Page = HTML.ElementFromURL(GT_TOP20_URL % (section,page), cacheTime=CACHE_HIGHLIGHTS_INTERVAL, errors='ignore')
 
   # Excuse the ugliness of this xpath, it was the only match I could find that would match over each section (yesterday, week, month, alltime)
   videos = top20Page.xpath("//div[substring-after(@id, 'top_media_')='" + section + "']//div[@class='top20_movie_title']/../../..")
 
-  PMS.Log (str(len(videos)))
+  Log (str(len(videos)))
 
   for video in videos:
 
@@ -370,7 +335,7 @@ def Top20Browser(sender, section, page=0):
     dir.Append(Function(VideoItem(PlayVideo, title=title, subtitle=date, summary=description, duration='', thumb=thumb), url=pageUrl))
 
   if DEBUG_XML_RESPONSE:
-    PMS.Log(dir.Content())
+    Log(dir.Content())
   return dir
 
 
@@ -379,8 +344,7 @@ def Search(sender, query, nextPageUrl=None, page=1):
   # Browse the 'customizable rss feeds'
 
   cookies = HTTP.GetCookiesForURL(GT_URL)
-  dir = MediaContainer(httpCookies=cookies)
-  dir.viewGroup = 'Details'
+  dir = MediaContainer(httpCookies=cookies, viewGroup = 'Details')
   if page > 1:
     dir.title1 = query
     dir.title2 = L('page') + ' ' + str(page)
@@ -391,10 +355,10 @@ def Search(sender, query, nextPageUrl=None, page=1):
   queryString = query.replace(' ', '+')
 
   if nextPageUrl:
-    resultsPage = XML.ElementFromURL(nextPageUrl, isHTML=True, cacheTime=CACHE_SEARCH_INTERVAL, errors='ignore')
+    resultsPage = HTML.ElementFromURL(nextPageUrl, cacheTime=CACHE_SEARCH_INTERVAL, errors='ignore')
   else:
     # First page of results
-    resultsPage = XML.ElementFromURL(GT_SEARCH_URL % queryString, isHTML=True, cacheTime=CACHE_SEARCH_INTERVAL, errors='ignore')
+    resultsPage = HTML.ElementFromURL(GT_SEARCH_URL % queryString, cacheTime=CACHE_SEARCH_INTERVAL, errors='ignore')
 
   results = resultsPage.xpath("//div[@class='search_movie_row']")
 
@@ -420,12 +384,12 @@ def Search(sender, query, nextPageUrl=None, page=1):
     for link in searchPageLinks:
       if re.search (r'Next', link.xpath("./text()")[0]):
         nextPageUrl = GT_SEARCH_BASE + link.get('href')
-        dir.Append(Function(DirectoryItem(Search, title=L('nextpage'), summary='', subtitle='', thumb=R('icon-default.png')), sender=None, query=query, nextPageUrl=nextPageUrl, page=page+1))
+        dir.Append(Function(DirectoryItem(Search, title=L('nextpage'), summary='', subtitle='', thumb=R(ICON)), sender=None, query=query, nextPageUrl=nextPageUrl, page=page+1))
         break
 
 
   if DEBUG_XML_RESPONSE:
-    PMS.Log(dir.Content())
+    Log(dir.Content())
   return dir
 
 

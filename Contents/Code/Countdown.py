@@ -1,13 +1,9 @@
 import re
-from PMS import *
-from PMS.Objects import *
-from PMS.Shortcuts import *
-
 from Support import *
 
 GT_URL                               = 'http://www.gametrailers.com'
 COUNTDOWN_URL                        = 'http://www.gametrailers.com/game/gt-countdown/2111'
-CACHE_COUNTDOWN_INTERVAL        = 1800
+CACHE_COUNTDOWN_INTERVAL             = 1800
 DEBUG_XML_RESPONSE                   = True
 MAX_ITEM_COUNT                       = 20 # Maximum number of items to display per page
 
@@ -17,12 +13,9 @@ def Countdown(sender, offset=1):
   # Display top menu for Countdown
 
   cookies = HTTP.GetCookiesForURL(GT_URL)
-  dir = MediaContainer(httpCookies=cookies)
-  dir.viewGroup = 'Details'
-  dir.title1 = L('channels')
-  dir.title2 = L('countdown')
+  dir = MediaContainer(httpCookies=cookies, viewGroup = 'Details', title1 = L('channels'), title2 = L('countdown'))
 
-  countdownPage = XML.ElementFromURL(COUNTDOWN_URL, isHTML=True, cacheTime=CACHE_COUNTDOWN_INTERVAL, errors='ignore')
+  countdownPage = HTML.ElementFromURL(COUNTDOWN_URL, cacheTime=CACHE_COUNTDOWN_INTERVAL, errors='ignore')
 
   videos = countdownPage.xpath("//div[@id='Features']/div[@style='margin:2px;']")
 
@@ -58,7 +51,7 @@ def Countdown(sender, offset=1):
     dir.Append(Function(VideoItem(PlayVideo, title=title, subtitle=date, summary=description, duration='', thumb=thumb), url=url))
 
   if DEBUG_XML_RESPONSE:
-    PMS.Log(dir.Content())
+    Log(dir.Content())
   return dir
 
 

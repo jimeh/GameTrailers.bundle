@@ -1,7 +1,4 @@
 import re
-from PMS import *
-from PMS.Objects import *
-from PMS.Shortcuts import *
 
 # Support functioons for GameTrailers
 
@@ -20,9 +17,9 @@ def PlayVideo(sender, url):
 
     # Get the page for the video and extract the quicktime movie
 
-    page = XML.ElementFromURL(url, isHTML=True, cacheTime=0, errors='ignore')
+    page = HTML.ElementFromURL(url, cacheTime=0, errors='ignore')
     mediaUrls = page.xpath("//div[@id='MediaDownload']/div/span[@class='Downloads']/a")
-    mediaType = Prefs.Get('mediatype-key')
+    mediaType = Prefs['mediatype-key']
 
     # Look for the requested mediaType
 
@@ -47,12 +44,12 @@ def PlayBonusRound(sender, url):
 
   # Pull the requested url and find the flv
 
-  episodePage = XML.ElementFromURL(url, isHTML=True, cacheTime=CACHE_VIDEOPAGE_INTERVAL, errors='ignore')
+  episodePage = HTML.ElementFromURL(url, cacheTime=CACHE_VIDEOPAGE_INTERVAL, errors='ignore')
   playerCode = episodePage.xpath("//div[@class='gttv_page']/embed")[0].get('flashvars')
   metadataUrl = re.search( r"filename=([^&]+)&", playerCode).group(1)
-  metadataPage = XML.ElementFromURL(metadataUrl, isHTML=False, cacheTime=CACHE_VIDEOPAGE_INTERVAL)
+  metadataPage = XML.ElementFromURL(metadataUrl, cacheTime=CACHE_VIDEOPAGE_INTERVAL)
 
-  if Prefs.Get('quality-key') == 'SD Only':
+  if Prefs['quality-key'] == 'SD Only':
     flvUrl = metadataPage.xpath("//sd/flv/text()")[0]
   else:
     flvUrl = metadataPage.xpath("//hd/flv/text()")[0]
@@ -73,7 +70,7 @@ def GetVideoLink(xml):
     # If we have sdLinks then the video only has SD
     if len(sdLinks) > 0:
       # Check user had not requested 'HD Only'
-      if Prefs.Get('quality-key') == 'HD Only':
+      if Prefs['quality-key'] == 'HD Only':
         # We have no content for this user
         pageUrl = None
         quality = None
@@ -82,7 +79,7 @@ def GetVideoLink(xml):
         quality = 'SD'
     else:
       # We have both SD and HD
-      if Prefs.Get('quality-key') == 'SD Only':
+      if Prefs['quality-key'] == 'SD Only':
         # SD Link
         pageUrl = hdsdLinks[1].get('href')
         quality = 'SD'

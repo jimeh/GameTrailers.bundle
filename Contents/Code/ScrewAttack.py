@@ -1,8 +1,4 @@
 import re
-from PMS import *
-from PMS.Objects import *
-from PMS.Shortcuts import *
-
 from Support import *
 
 GT_URL                               = 'http://www.gametrailers.com'
@@ -17,11 +13,8 @@ def ScrewAttack(sender):
   # Display top menu for ScrewAttack
 
   cookies = HTTP.GetCookiesForURL(GT_URL)
-  dir = MediaContainer(httpCookies=cookies)
-  dir.title1 = L('channels')
-  dir.title2 = L('screwattack')
-
-
+  dir = MediaContainer(httpCookies=cookies, title1 = L('channels'), title2 = L('screwattack'))
+  
   # The 'id's on the site are wrong
   # nerd = Video Game Vault 
   # vault = Angry Video Game Nerd
@@ -30,19 +23,16 @@ def ScrewAttack(sender):
   dir.Append(Function(DirectoryItem(ScrewAttackBrowser, title=L('vault'), thumb=R('icon-default.png')), section='vault'))
 
   if DEBUG_XML_RESPONSE:
-    PMS.Log(dir.Content())
+    Log(dir.Content())
   return dir
 
 
 def ScrewAttackBrowser(sender, section, offset=1):
 
   cookies = HTTP.GetCookiesForURL(GT_URL)
-  dir = MediaContainer(httpCookies=cookies)
-  dir.title1 = L('screwattack')
-  dir.title2 = L(section)
-  dir.viewGroup = 'Details'
+  dir = MediaContainer(httpCookies=cookies, title1 = L('screwattack'), title2 = L(section), viewGroup = 'Details')
 
-  screwAttackPage = XML.ElementFromURL(SCREWATTACK_URL, isHTML=True, cacheTime=CACHE_SCREWATTACK_INTERVAL, errors='ignore')
+  screwAttackPage = HTML.ElementFromURL(SCREWATTACK_URL, cacheTime=CACHE_SCREWATTACK_INTERVAL, errors='ignore')
 
   videos = screwAttackPage.xpath("//div[@id='" + section +"']//div[@class='gamepage_content_row']")
 
@@ -72,7 +62,7 @@ def ScrewAttackBrowser(sender, section, offset=1):
     dir.Append(Function(VideoItem(PlayVideo, title=title, subtitle=date, summary=description, duration='', thumb=thumb), url=url))
 
   if DEBUG_XML_RESPONSE:
-    PMS.Log(dir.Content())
+    Log(dir.Content())
   return dir
 
 

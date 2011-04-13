@@ -1,8 +1,4 @@
 import re
-from PMS import *
-from PMS.Objects import *
-from PMS.Shortcuts import *
-
 from Support import *
 
 GT_URL                               = 'http://www.gametrailers.com'
@@ -17,12 +13,9 @@ def Retrospectives(sender):
   # Display top menu for Retrospectives
 
   cookies = HTTP.GetCookiesForURL(GT_URL)
-  dir = MediaContainer(httpCookies=cookies)
-  dir.viewGroup = 'Details'
-  dir.title1 = L('channels')
-  dir.title2 = L('retrospectives')
+  dir = MediaContainer(httpCookies=cookies, viewGroup = 'Details', title1 = L('channels'), title2 = L('retrospectives'))
 
-  retrospectivesPage = XML.ElementFromURL(RETROSPECTIVES_URL, isHTML=True, cacheTime=CACHE_RETROSPECTIVES_INTERVAL, errors='ignore')
+  retrospectivesPage = HTML.ElementFromURL(RETROSPECTIVES_URL, cacheTime=CACHE_RETROSPECTIVES_INTERVAL, errors='ignore')
 
   # We need to find both the name for each title and it's ID
 
@@ -43,18 +36,16 @@ def Retrospectives(sender):
 
 
   if DEBUG_XML_RESPONSE:
-    PMS.Log(dir.Content())
+    Log(dir.Content())
   return dir
 
 
 def RetrospectivesBrowser(sender, title, id):
 
   cookies = HTTP.GetCookiesForURL(GT_URL)
-  dir = MediaContainer(httpCookies=cookies)
-  dir.title1 = L('retrospectives')
-  dir.title2 = L(title)
+  dir = MediaContainer(httpCookies=cookies, title1 = L('retrospectives'), title2 = L(title))
 
-  retrospectivesPage = XML.ElementFromURL(RETROSPECTIVES_URL, isHTML=True, cacheTime=CACHE_RETROSPECTIVES_INTERVAL, errors='ignore')
+  retrospectivesPage = HTML.ElementFromURL(RETROSPECTIVES_URL, cacheTime=CACHE_RETROSPECTIVES_INTERVAL, errors='ignore')
 
   parts = retrospectivesPage.xpath("//div[@id='episode_segments_" + id + "']/div[@class='gamepage_content_row']")
 
@@ -72,7 +63,7 @@ def RetrospectivesBrowser(sender, title, id):
     dir.Append(Function(VideoItem(PlayVideo, title=title, subtitle=date, summary=description, duration='', thumb=thumb), url=url))
 
   if DEBUG_XML_RESPONSE:
-    PMS.Log(dir.Content())
+    Log(dir.Content())
   return dir
 
 

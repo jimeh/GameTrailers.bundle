@@ -1,8 +1,4 @@
 import re
-import urllib
-from PMS import *
-from PMS.Objects import *
-from PMS.Shortcuts import *
 
 from Support import *
 
@@ -20,8 +16,7 @@ def BonusRound(sender, pageNumber=1):
   # Display top menu for Bonus Round
 
   cookies = HTTP.GetCookiesForURL(GT_URL)
-  dir = MediaContainer(httpCookies=cookies)
-  dir.viewGroup = 'Details'
+  dir = MediaContainer(httpCookies=cookies, viewGroup = 'Details')
   if pageNumber==1:
     dir.title1 = L('channels')
     dir.title2 = L('bonusround')
@@ -34,7 +29,7 @@ def BonusRound(sender, pageNumber=1):
     'page' : pageNumber
   }
 
-  episodesPage = XML.ElementFromURL(BONUSROUND_EPISODES_URL, isHTML=True, values=values, cacheTime=CACHE_GTTV_INTERVAL, errors='ignore')
+  episodesPage = HTML.ElementFromURL(BONUSROUND_EPISODES_URL, values=values, cacheTime=CACHE_GTTV_INTERVAL, errors='ignore')
 
   # Episodes are in two styles, process the new look ones first
 
@@ -70,7 +65,7 @@ def BonusRound(sender, pageNumber=1):
 
   for episode in oldEpisodes:
 
-    if Prefs.Get('quality-key') == 'SD Only':
+    if Prefs['quality-key'] == 'SD Only':
       url = GT_URL + episode.xpath(".//a[@class='media_hdsdbutton']")[0].get('href')
     else:
       url = GT_URL + episode.xpath(".//a[@class='media_hdsdbutton']")[1].get('href')
@@ -91,6 +86,6 @@ def BonusRound(sender, pageNumber=1):
     dir.Append(Function(DirectoryItem(BonusRound, title=L('nextpage'), thumb=R('icon-default.png')), pageNumber=nextPageNumber))
 
   if DEBUG_XML_RESPONSE:
-    PMS.Log(dir.Content())
+    Log(dir.Content())
   return dir
 

@@ -1,8 +1,4 @@
 import re
-from PMS import *
-from PMS.Objects import *
-from PMS.Shortcuts import *
-
 from Support import *
 
 GT_URL                               = 'http://www.gametrailers.com'
@@ -17,12 +13,9 @@ def InvisibleWalls(sender, offset=1):
   # Display top menu for InvisibleWalls
 
   cookies = HTTP.GetCookiesForURL(GT_URL)
-  dir = MediaContainer(httpCookies=cookies)
-  dir.viewGroup = 'Details'
-  dir.title1 = L('channels')
-  dir.title2 = L('invisiblewalls')
+  dir = MediaContainer(httpCookies=cookies, viewGroup = 'Details', title1 = L('channels'), title2 = L('invisiblewalls'))
 
-  invisibleWallsPage = XML.ElementFromURL(INVISIBLEWALLS_URL, isHTML=True, cacheTime=CACHE_INVISIBLEWALLS_INTERVAL, errors='ignore')
+  invisibleWallsPage = HTML.ElementFromURL(INVISIBLEWALLS_URL, cacheTime=CACHE_INVISIBLEWALLS_INTERVAL, errors='ignore')
 
   videos = invisibleWallsPage.xpath("//div[@class='basic_container_content']")
 
@@ -53,7 +46,7 @@ def InvisibleWalls(sender, offset=1):
     dir.Append(Function(VideoItem(PlayVideo, title=title, subtitle=date, summary=description, duration='', thumb=thumb), url=url))
 
   if DEBUG_XML_RESPONSE:
-    PMS.Log(dir.Content())
+    Log(dir.Content())
   return dir
 
 
