@@ -25,12 +25,5 @@
                 "type":     "enum",
                 "default":  "noselection",
                 "values":   [ "allplatforms", "wii", "xb360", "ps3", "pc", "xbox", "gc", "ps2", "gba", "ds", "psp", "mob" ]
-        },
-        {
-                "id":       "mediatype-key",
-                "label":    "mediatypes",
-                "type":     "enum",
-                "default":  "mov",
-                "values":   [ "mov", "wmv", "mp4" ]
         }
 ]
