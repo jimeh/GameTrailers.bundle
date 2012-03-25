@@ -28,9 +28,10 @@ CHANNELS = [
 	    {"title" : "GTTV",		"url" : "6426"},
 	    {"title" : "CountDown",	"url" : "2111"},
 	    {"title" : "Top 100", 	"url" : "15268"},
-	    {"title" : "Hey Ash Watcha Playin", 	"url" : "11350"},
+	    {"title" : "Hey Ash Watcha Playin",	"url" : "11350"},
 	    {"title" : "Pach Attack", 	"url" : "12619"},
-	    {"title" : "Pop Fiction", 	"url" : "13123"}
+	    {"title" : "Pop Fiction", 	"url" : "13123"},
+	    {"title" : "Science of Games",	"url" : "13798"}
 ]
 
 CATEGORIES = [
