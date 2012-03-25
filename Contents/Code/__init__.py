@@ -19,7 +19,7 @@ GT_PLAY_PREFIX              = '/video/gametrailers-play'
 RSS_URL = "http://www.gametrailers.com/gt%s_podcast.xml"
 DETAIL_URL = "http://www.gametrailers.com/neo/?page=xml.mediaplayer.Mrss&mgid=mgid:moses:video:gametrailers.com:%s&keyvalues={keyvalues}"
 FEATURES_URL = "http://feeds.gametrailers.com/rssgenerate.php?s1=&favplats[xb360]=xb360&favplats[ps3]=ps3&favplats[pc]=pc&type[feature]=on&quality[hd]=on&orderby=newest&limit=20"
-CHANNEL_URL = "http://feeds.gametrailers.com/rssgenerate.php?game1id=%s&vidformat[mp4]=on&orderby=newest&limit=20"
+CHANNEL_URL = "http://feeds.gametrailers.com/rssgenerate.php?game1id=%s&vidformat[mp4]=on&quality[hd]=on&orderby=newest&limit=20"
 
 CHANNELS = [
 	    {"title" : "Anthology",	"url" : "11170"},
@@ -27,6 +27,9 @@ CHANNELS = [
 	    {"title" : "EpicBattleCry",	"url" : "10944"},
 	    {"title" : "GTTV",		"url" : "6426"},
 	    {"title" : "CountDown",	"url" : "2111"},
+	    {"title" : "Top 100", 	"url" : "15268"},
+	    {"title" : "Hey Ash Watcha Playin", 	"url" : "11350"},
+	    {"title" : "Pach Attack", 	"url" : "12619"}
 ]
 
 CATEGORIES = [
@@ -152,7 +155,7 @@ def Custom_RSS_Browser(feed):
   data = XML.ElementFromString(content)
   for item in data.xpath('//item'):
     title = item.xpath('.//title')[0].text
-    summary = item.xpath('.//description')[0].text
+    summary = String.StripTags(item.xpath('.//description')[0].text)
     date = Datetime.ParseDate(item.xpath('.//pubDate')[0].text).date()
     thumb = item.xpath('.//image')[0].text
     page_url = item.xpath('./link')[0].text
