@@ -19,8 +19,15 @@ GT_PLAY_PREFIX              = '/video/gametrailers-play'
 RSS_URL = "http://www.gametrailers.com/gt%s_podcast.xml"
 DETAIL_URL = "http://www.gametrailers.com/neo/?page=xml.mediaplayer.Mrss&mgid=mgid:moses:video:gametrailers.com:%s&keyvalues={keyvalues}"
 FEATURES_URL = "http://feeds.gametrailers.com/rssgenerate.php?s1=&favplats[xb360]=xb360&favplats[ps3]=ps3&favplats[pc]=pc&type[feature]=on&quality[hd]=on&orderby=newest&limit=20"
-GTTV_URL = "http://feeds.gametrailers.com/rssgenerate.php?game1id=6426&vidformat[mp4]=on&orderby=newest&limit=20"
-EBC_URL = "http://www.gametrailers.com/rssgenerate.php?game1id=10944&vidformat[mp4]=on&embed=on&quality[either]=on&orderby=newest&limit=20"
+CHANNEL_URL = "http://feeds.gametrailers.com/rssgenerate.php?game1id=%s&vidformat[mp4]=on&orderby=newest&limit=20"
+
+CHANNELS = [
+	    {"title" : "Anthology",	"url" : "11170"},
+	    {"title" : "CountDown",	"url" : "2111"},
+	    {"title" : "EpicBattleCry",	"url" : "10944"},
+	    {"title" : "GTTV",		"url" : "6426"},
+	    {"title" : "CountDown",	"url" : "2111"},
+]
 
 CATEGORIES = [
 	    {"title" : "Reviews",	"rss" : "rev"},
@@ -97,8 +104,8 @@ def ChannelsMenu():
   
   oc.add(DirectoryObject(key=Callback(FeedBrowser, rss_feed={'title':'Bonus Round', 'rss':'bonusround'}), title="Bonus Round"))
   oc.add(DirectoryObject(key=Callback(FeedBrowser, rss_feed={'title':'Invisible Walls', 'rss':'iw'}), title="Invisible Walls"))
-  oc.add(DirectoryObject(key=Callback(Custom_RSS_Browser, feed={"title":"GTTV",	"url" :GTTV_URL}), title="GTTV"))
-  oc.add(DirectoryObject(key=Callback(Custom_RSS_Browser, feed={"title":"EpicBattleCry", "url": EBC_URL}), title="EpicBattleCry"))
+  for channel in CHANNELS:
+    oc.add(DirectoryObject(key=Callback(Custom_RSS_Browser, feed=channel), title=channel['title']))
   
   return oc
 
@@ -137,7 +144,11 @@ def FeedBrowser(rss_feed):
 
 def Custom_RSS_Browser(feed):
   oc = ObjectContainer(title2=feed['title'], no_cache=True)
-  content = HTTP.Request(feed['url']).content.replace('exInfo:', '')
+  if not 'http://' in feed['url']:
+    feed_url = CHANNEL_URL % feed['url']
+  else:
+    feed_url = feed['url']
+  content = HTTP.Request(feed_url).content.replace('exInfo:', '')
   data = XML.ElementFromString(content)
   for item in data.xpath('//item'):
     title = item.xpath('.//title')[0].text
