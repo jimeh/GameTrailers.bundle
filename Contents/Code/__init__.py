@@ -1,20 +1,16 @@
+####################################################################################################
+# TODO:
+# 	- Implement support for ScrewAttack?
+#	- Implement support for Retrospectives?
+#	- Other shows?
+####################################################################################################
+
 import re
 
 ####################################################################################################
 
 GT_PREFIX                   = '/video/gametrailers'
 GT_PLAY_PREFIX              = '/video/gametrailers-play'
-
-#GT_URL                      = 'http://www.gametrailers.com'
-#GT_RSS_BASE                 = 'http://www.gametrailers.com/rssgenerate.php?s1='
-#GT_SEARCH_URL               = 'http://www.gametrailers.com/search.php?page=0&s=%s&str_type=movies&ac=1'
-#GT_SEARCH_BASE              = 'http://www.gametrailers.com/search.php'
-#GT_HIGHLIGHTS_URL           = 'http://www.gametrailers.com/index_ajaxfuncs.php?do=get_movie_page&type=%s&page=%d&loading=0'
-#GT_TOP20_URL                = 'http://www.gametrailers.com/top20.php?toplist=media&topsublist=%s&plattyfilt=all&page=%d'
-
-#GT_CATEGORIES               = [ 'allcategories', 'review', 'preview', 'interview', 'gameplay', 'trailer', 'feature' ]
-# Available platforms. Note: There is a 'classic' platform RSS feed but there is no content in it
-#GT_PLATFORMS                = [ 'allplatforms', 'wii', 'xb360', 'ps3', 'pc', 'xbox', 'gc', 'ps2', 'gba', 'ds', 'psp', 'mob' ]
 
 RSS_URL = "http://www.gametrailers.com/gt%s_podcast.xml"
 DETAIL_URL = "http://www.gametrailers.com/neo/?page=xml.mediaplayer.Mrss&mgid=mgid:moses:video:gametrailers.com:%s&keyvalues={keyvalues}"
@@ -47,6 +43,8 @@ PLATFORMS = [
 	    {"title" : "PSP",		"rss" : "psp"},
 	    {"title" : "Nintendo DS",	"rss" : "ds"}
 ]
+
+OTHER_PLATFORMS = ['pc', 'xbox', 'gc', 'ps2', 'gba', 'ds', 'psp', 'mob' ] ### Currently not implemented
 
 MAX_ITEM_COUNT          = 20 # Maximum number of items to display per page
 
