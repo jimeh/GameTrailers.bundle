@@ -1,0 +1,31 @@
+RE_DURATION = Regex('PT(?P<hours>[0-9]+)H(?P<minutes>[0-9]+)M(?P<seconds>[0-9]+)S')
+
+SEARCH_URL = 'http://www.gametrailers.com/feeds/search/child/c9c01382-1f7c-4a3a-b68f-2e5ecc67fdd3/?keywords=%s&tabName=videos'
+
+####################################################################################################
+def Search(query):
+
+	data = HTML.ElementFromURL(SEARCH_URL % query)
+	oc = ObjectContainer(title2='Search Results')
+
+	for result in data.xpath('//div[@class="holder"]'):
+		title = result.xpath('.//meta[@itemprop="name"]')[0].get('content')
+		try: summary = rresult.xpath('.//meta[@itemprop="description"]')[0].get('content')
+		except: summary = ''
+		video_url = result.xpath('.//meta[@itemprop="url"]')[0].get('content')
+		thumbUrl = result.xpath('.//meta[@itemprop="thumbnail"]')[0].get('content')
+		try: duration = CalculateDuration(result.xpath('.//meta[@itemprop="duration"]')[0].get('content'))
+		except: duration = None
+		date = Datetime.ParseDate(result.xpath('.//meta[@itemprop="uploadDate"]')[0].get('content')).date()
+
+		oc.add(VideoClipObject(url=video_url, title=title, summary=summary, duration=duration, originally_available_at=date, thumb=thumbUrl))
+
+	return oc    
+
+####################################################################################################
+def CalculateDuration(timecode):
+
+	dur = RE_DURATION.search(timecode).groupdict()
+	duration = ((int(dur['hours'])*60 + int(dur['minutes']))*60 + int(dur['seconds']))*1000
+	return duration
+	
