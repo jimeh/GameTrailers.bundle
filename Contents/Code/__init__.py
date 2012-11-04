@@ -99,6 +99,7 @@ def MainMenu():
   oc.add(DirectoryObject(key=Callback(CategoryBrowser, genre="Platforms"), title="Platforms"))
   oc.add(DirectoryObject(key=Callback(CategoryBrowser, genre="Categories"), title="Categories"))
   oc.add(DirectoryObject(key=Callback(ChannelsMenu), title="Channels"))
+  oc.add(SearchDirectoryObject(identifier="com.plexapp.plugins.gametrailers", title="Search", summary="Search GameTrailers for videos", prompt="Search for...", thumb=R(ICON), art=R(ART)))
   
   return oc
 
