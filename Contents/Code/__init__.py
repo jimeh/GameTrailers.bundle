@@ -5,14 +5,6 @@ GT_PREFIX                   = '/video/gametrailers'
 BASE_URL		= 'http://www.gametrailers.com/videos-trailers'
 FEED_BASE_URL	= 'http://www.gametrailers.com/feeds/line_listing_results/video_hub/6bc9c4b7-0147-4861-9dac-7bfe8db9a141/?'
 
-DEBUG_XML_RESPONSE                   = False
-CACHE_INTERVAL                       = 1800 # Since we are not pre-fetching content this cache time seems reasonable 
-CACHE_RSS_INTERVAL                   = 1800
-CACHE_HIGHLIGHTS_INTERVAL            = 1800
-CACHE_SEARCH_INTERVAL                = 600
-
-NAMESPACES = {'itunes':'http://www.itunes.com/dtds/podcast-1.0.dtd','exInfo':'http://www.gametrailers.com/rssexplained.php', 'media':'http://search.yahoo.com/mrss/'}
-
 LOGIN_PREF_KEY = "login"
 PASSWD_PREF_KEY = "passwd"
 LOGGED_IN = "loggedIn"
@@ -29,8 +21,7 @@ def Start():
 	ObjectContainer.view_group = 'List'
 	ObjectContainer.title1 = L('gt')
 	DirectoryObject.thumb = R(ICON)
-	HTTP.CacheTime = CACHE_INTERVAL
-
+	
 def ValidatePrefs():
 	userName = Prefs['LOGIN_PREF_KEY']
 	password = Prefs['PASSWD_PREF_KEY']
@@ -52,6 +43,7 @@ def MainMenu():
 
 	oc = ObjectContainer(no_cache=True)
 
+	oc.add(DirectoryObject(key=Callback(MostViewed), title="Most Viewed Videos"))
 	oc.add(DirectoryObject(key=Callback(CategoryBrowser, title="Categories", group="category"), title="Categories"))
 	oc.add(DirectoryObject(key=Callback(CategoryBrowser, title="Genres", group="genre"), title="Genres"))
 	oc.add(DirectoryObject(key=Callback(CategoryBrowser, title="Platforms", group="platform"), title="Platforms"))
@@ -59,6 +51,30 @@ def MainMenu():
 	#oc.add(DirectoryObject(key=Callback(CategoryBrowser, title="User Movies", group="ugc_genre"), title="User Movies")) # <<< Uses a different video provider scheme, therefore no direct MP4s
 	oc.add(SearchDirectoryObject(identifier="com.plexapp.plugins.gametrailers", title="Search", summary="Search GameTrailers for videos", prompt="Search for...", thumb=R(ICON), art=R(ART)))
 
+	return oc
+
+@route('/video/gametrailers/mostviewed')
+def MostViewed():
+	oc = ObjectContainer(title2="Most Viewed")
+	oc.add(DirectoryObject(key=Callback(PopularVideos, index=1, title="Today"), title="Most Viewed Today"))
+	oc.add(DirectoryObject(key=Callback(PopularVideos, index=2, title="This Week"), title="Most Viewed This Week"))
+	oc.add(DirectoryObject(key=Callback(PopularVideos, index=3, title="This Month"), title="Most Viewed This Month"))
+	oc.add(DirectoryObject(key=Callback(PopularVideos, index=4, title="All Time"), title="Most Viewed of All Time"))
+	return oc	
+
+@route('/video/gametrailers/popularvideos')
+def PopularVideos(index, title):
+	oc = ObjectContainer(title2=title)
+	data = HTML.ElementFromURL(BASE_URL)
+	for item in data.xpath('//ul[@class="video_list"]['+index+']//a[@class="thumbnail"]'):
+		url = item.get('href')
+		Log(url)
+		video_title = item.xpath('./img')[-1].get('alt')
+		Log(video_title)
+		thumb = item.xpath('./img')[-1].get('src')
+		Log(thumb)
+		oc.add(VideoClipObject(url=url, title=video_title, thumb=Resource.ContentsOfURLWithFallback(url=thumb, fallback=ICON)))
+	
 	return oc
 
 @route('/video/gametrailers/categories')
@@ -106,6 +122,7 @@ def FeedBrowser(feed, title, group, page=None):
 
 	return oc
 
+@route('/video/gametrailers/duration')
 def CalculateDuration(timecode):
 	try:
 		dur = RE_DURATION.search(timecode).groupdict()
