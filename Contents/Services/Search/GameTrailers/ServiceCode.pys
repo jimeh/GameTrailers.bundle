@@ -1,4 +1,4 @@
-RE_DURATION = Regex('PT(?P<hours>[0-9]+)H(?P<minutes>[0-9]+)M(?P<seconds>[0-9]+)S')
+RE_DURATION = Regex('PT(?P<hours>[0-9]+H)?(?P<minutes>[0-9]+M)?(?P<seconds>[0-9]+S)')
 
 SEARCH_URL = 'http://www.gametrailers.com/feeds/search/child/c9c01382-1f7c-4a3a-b68f-2e5ecc67fdd3/?keywords=%s&tabName=videos'
 
@@ -10,9 +10,8 @@ def Search(query):
 
 	for result in data.xpath('//div[@class="holder"]'):
 		title = result.xpath('.//meta[@itemprop="name"]')[0].get('content')
-		try: summary = rresult.xpath('.//meta[@itemprop="description"]')[0].get('content')
-		except: summary = ''
-		video_url = result.xpath('.//meta[@itemprop="url"]')[0].get('content')
+		summary = result.xpath('.//meta[@itemprop="description"]')[0].get('content')
+		video_url = result.xpath('.//a[@class="thumbnail"]')[0].get('href')
 		thumbUrl = result.xpath('.//meta[@itemprop="thumbnail"]')[0].get('content')
 		try: duration = CalculateDuration(result.xpath('.//meta[@itemprop="duration"]')[0].get('content'))
 		except: duration = None
@@ -24,8 +23,17 @@ def Search(query):
 
 ####################################################################################################
 def CalculateDuration(timecode):
+	try:
+		dur = RE_DURATION.search(timecode).groupdict()
+		if not dur['hours']:        hours = 0
+		else:                       hours = dur['hours'].strip('H')
+		if not dur['minutes']:      minutes = 0
+		else:                       minutes = dur['minutes'].strip('M')
+		if not dur['seconds']:      seconds = 0
+		else:                       seconds = dur['seconds'].strip('S')
 
-	dur = RE_DURATION.search(timecode).groupdict()
-	duration = ((int(dur['hours'])*60 + int(dur['minutes']))*60 + int(dur['seconds']))*1000
-	return duration
+		duration = ((int(hours)*60 + int(minutes))*60 + int(seconds))*1000
+		return duration
+	except:
+		return None
 	
