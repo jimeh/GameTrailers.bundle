@@ -1,5 +1,4 @@
 RE_DURATION = Regex('PT(?P<hours>[0-9]+H)?(?P<minutes>[0-9]+M)?(?P<seconds>[0-9]+S)')
-
 SEARCH_URL = 'http://www.gametrailers.com/feeds/search/child/c9c01382-1f7c-4a3a-b68f-2e5ecc67fdd3/?keywords=%s&tabName=videos'
 
 ####################################################################################################
@@ -19,10 +18,11 @@ def Search(query):
 
 		oc.add(VideoClipObject(url=video_url, title=title, summary=summary, duration=duration, originally_available_at=date, thumb=thumbUrl))
 
-	return oc    
+	return oc
 
 ####################################################################################################
 def CalculateDuration(timecode):
+
 	try:
 		dur = RE_DURATION.search(timecode).groupdict()
 		if not dur['hours']:        hours = 0
@@ -36,4 +36,3 @@ def CalculateDuration(timecode):
 		return duration
 	except:
 		return None
-	
