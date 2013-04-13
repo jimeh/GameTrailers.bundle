@@ -22,7 +22,7 @@ def MainMenu():
 	oc.add(DirectoryObject(key=Callback(MostViewed), title="Most Viewed Videos"))
 	oc.add(DirectoryObject(key=Callback(CategoryBrowser, title="Categories", group="category"), title="Categories"))
 	oc.add(DirectoryObject(key=Callback(CategoryBrowser, title="Genres", group="genre"), title="Genres"))
-	oc.add(DirectoryObject(key=Callback(CategoryBrowser, title="Platforms", group="platform"), title="Platforms"))
+	#oc.add(DirectoryObject(key=Callback(CategoryBrowser, title="Platforms", group="platform"), title="Platforms"))
 	oc.add(DirectoryObject(key=Callback(CategoryBrowser, title="Shows", group="show"), title="Shows"))
 	oc.add(SearchDirectoryObject(identifier="com.plexapp.plugins.gametrailers", title="Search", summary="Search GameTrailers for videos", prompt="Search for...", thumb=R(ICON), art=R(ART)))
 
