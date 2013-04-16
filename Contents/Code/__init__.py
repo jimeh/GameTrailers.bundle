@@ -22,7 +22,7 @@ def MainMenu():
 	oc.add(DirectoryObject(key=Callback(MostViewed), title="Most Viewed Videos"))
 	oc.add(DirectoryObject(key=Callback(CategoryBrowser, title="Categories", group="category"), title="Categories"))
 	oc.add(DirectoryObject(key=Callback(CategoryBrowser, title="Genres", group="genre"), title="Genres"))
-	oc.add(DirectoryObject(key=Callback(CategoryBrowser, title="Platforms", group="platform"), title="Platforms"))
+	#oc.add(DirectoryObject(key=Callback(CategoryBrowser, title="Platforms", group="platform"), title="Platforms"))
 	oc.add(DirectoryObject(key=Callback(CategoryBrowser, title="Shows", group="show"), title="Shows"))
 	oc.add(SearchDirectoryObject(identifier="com.plexapp.plugins.gametrailers", title="Search", summary="Search GameTrailers for videos", prompt="Search for...", thumb=R(ICON), art=R(ART)))
 
@@ -89,7 +89,7 @@ def FeedBrowser(feed, title, group, page=None):
 		if video_title == 'Review' or video_title == 'Preview':
 			video_title = video_title + ' - ' + item.xpath('.//h3/a')[0].text
 
-		thumb = item.xpath('.//meta[@itemprop="thumbnail"]')[0].get('content')
+		thumb = item.xpath('.//meta[@itemprop="thumbnailUrl"]')[0].get('content')
 		summary = item.xpath('.//meta[@itemprop="description"]')[0].get('content')
 		date = Datetime.ParseDate(item.xpath('.//meta[@itemprop="uploadDate"]')[0].get('content'))
 		duration = CalculateDuration(item.xpath('.//meta[@itemprop="duration"]')[0].get('content'))
