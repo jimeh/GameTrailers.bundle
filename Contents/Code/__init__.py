@@ -2,20 +2,15 @@ RE_DURATION = Regex('PT(?P<hours>[0-9]+H)?(?P<minutes>[0-9]+M)?(?P<seconds>[0-9]
 BASE_URL = 'http://www.gametrailers.com/videos-trailers'
 FEED_BASE_URL = 'http://www.gametrailers.com/feeds/line_listing_results/video_hub/6bc9c4b7-0147-4861-9dac-7bfe8db9a141/?'
 
-ART = 'art-default.png'
-ICON = 'icon-default.png'
-
 ####################################################################################################
 def Start():
 
 	Plugin.AddViewGroup('List', viewMode='List', mediaType='items')
 	Plugin.AddViewGroup('Details', viewMode='InfoList', mediaType='items')
-	ObjectContainer.art = R(ART)
 	ObjectContainer.view_group = 'List'
 	ObjectContainer.title1 = 'GameTrailers'
-	DirectoryObject.thumb = R(ICON)
 
-@handler('/video/gametrailers', 'GameTrailers', thumb=ICON, art=ART)
+@handler('/video/gametrailers', 'GameTrailers')
 def MainMenu():
 
 	oc = ObjectContainer()
@@ -24,7 +19,7 @@ def MainMenu():
 	oc.add(DirectoryObject(key=Callback(CategoryBrowser, title="Genres", group="genre"), title="Genres"))
 	#oc.add(DirectoryObject(key=Callback(CategoryBrowser, title="Platforms", group="platform"), title="Platforms"))
 	oc.add(DirectoryObject(key=Callback(CategoryBrowser, title="Shows", group="show"), title="Shows"))
-	oc.add(SearchDirectoryObject(identifier="com.plexapp.plugins.gametrailers", title="Search", summary="Search GameTrailers for videos", prompt="Search for...", thumb=R(ICON), art=R(ART)))
+	oc.add(SearchDirectoryObject(identifier="com.plexapp.plugins.gametrailers", title="Search", summary="Search GameTrailers for videos", prompt="Search for...",))
 
 	return oc
 
@@ -50,7 +45,7 @@ def PopularVideos(index, title):
 		video_title = item.xpath('./img')[-1].get('alt')
 		thumb = item.xpath('./img')[-1].get('src')
 
-		oc.add(VideoClipObject(url=url, title=video_title, thumb=Resource.ContentsOfURLWithFallback(url=thumb, fallback=ICON)))
+		oc.add(VideoClipObject(url=url, title=video_title, thumb=Resource.ContentsOfURLWithFallback(url=thumb)))
 
 	return oc
 
@@ -95,7 +90,7 @@ def FeedBrowser(feed, title, group, page=None):
 		duration = CalculateDuration(item.xpath('.//meta[@itemprop="duration"]')[0].get('content'))
 
 		oc.add(VideoClipObject(url=url, title=video_title, summary=summary, originally_available_at=date, duration=duration,
-			thumb=Resource.ContentsOfURLWithFallback(url=thumb, fallback=ICON)))
+			thumb=Resource.ContentsOfURLWithFallback(url=thumb)))
 
 	next_page = HTML.ElementFromURL(feed_url).xpath('.//div[@class="pagination"]//a[@rel="next"]')
 
@@ -103,7 +98,7 @@ def FeedBrowser(feed, title, group, page=None):
 		pass
 	else:
 		next_page = next_page[0].get('href')
-		oc.add(NextPageObject(key=Callback(FeedBrowser, feed=feed, title=title, group=group, page=next_page), title="Next Page", thumb=R(ICON)))
+		oc.add(NextPageObject(key=Callback(FeedBrowser, feed=feed, title=title, group=group, page=next_page), title="Next Page"))
 
 	return oc
 
