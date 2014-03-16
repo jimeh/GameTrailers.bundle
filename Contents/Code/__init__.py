@@ -42,7 +42,7 @@ def PopularVideos(index, title):
 
 	for item in data.xpath('//ul[@class="video_list"]['+index+']//a[@class="thumbnail"]'):
 		url = item.get('href')
-		video_title = item.xpath('./img')[-1].get('alt')
+		video_title = item.xpath('./img')[-1].get('alt').rsplit(' - Thumb')[0].rsplit(' - thumb')[0]
 		thumb = item.xpath('./img')[-1].get('src')
 
 		oc.add(VideoClipObject(url=url, title=video_title, thumb=Resource.ContentsOfURLWithFallback(url=thumb)))
